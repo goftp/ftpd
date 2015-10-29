@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+{{include "head.html"}}
+</head>
+<body>
+	<div class="container">
+		 {{include "nav.html"}}
+		 <div style="padding:10px;padding-top:60px">
+		 <div class="row"><legend>修改组：{{.T.user.Name}}</legend></div>
+			 <div class="row">
+				 <div class="col-md-5">
+				 <p>已选用户</p>
+				 <select multiple class="form-control">
+				 {{range .T.selUsers}}
+				 <option>{{.}}</option>
+				 {{end}}
+				 </select>
+				 </div>
+				 <div class="col-md-2">
+				 <div class="row text-center">
+				 <button class="btn">
+				 	<span class="glyphicon glyphicon-chevron-right"></span>
+				 </button>
+				 </div>
+				 <p></p>
+				 <div class="row text-center">
+				 <button class="btn">
+				 	<span class="glyphicon glyphicon-chevron-left"></span>
+				 </button>
+				 </div>
+				 </div>
+				 <div class="col-md-5">
+				 <p>待选用户</p>
+				 <select multiple class="form-control">
+				 {{range .T.otherUsers}}
+				 <option>{{.}}</option>
+				 {{end}}
+				 </select>
+				 </div>
+			 </div>
+		</div>
+	</div>
+{{include "foot.html"}}
+</body>
+</html>

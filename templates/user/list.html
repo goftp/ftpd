@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+{{include "head.html"}}
+</head>
+<body>
+	<div class="container">
+		   {{include "nav.html"}}
+<div class="text-right" style="padding:10px;padding-top:60px"><a href="/user/add" class="btn btn-large btn-primary">添加</a>
+	</div>
+<table class="table table-bordered table-hover">
+    <thead>
+        <th>用户名</th><th>创建时间</th><th>操作</th>
+    </thead>
+    <tbody>
+    {{$admin := .T.admin}}
+	{{range .T.users}}
+	<tr><td>{{.Name}}</td><td></td>
+		<td>
+		{{if ne .Name $admin}}
+		<a class="btn btn-warning" href="/user/edit?name={{.Name}}">修改</a>
+            <a class="btn btn-danger" href="/user/del?name={{.Name}}">删除</a>
+            {{end}}</td></tr>
+	{{end}}
+</tbody>
+</table>
+</div>
+{{include "foot.html"}}
+</body>
+</html>

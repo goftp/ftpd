@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+{{include "head.html"}}
+</head>
+<body>
+	<div class="container">
+		 {{include "nav.html"}}
+		 <div style="padding:10px;padding-top:60px">
+    <form class="form-horizontal" method="post">
+    	{{XsrfFormHtml}}
+	<legend>添加组</legend>
+<div class="control-group">
+<label class="control-label" for="inputEmail">组名称：</label>
+<div class="controls"><input type="text" name="name"/>
+</div>
+</div>
+<div class="control-group">
+<div class="controls">
+	<input type="submit" class="btn btn-large btn-primary" value="添加"/>
+</div>
+</div>
+</form>
+</div>
+</div>
+{{include "foot.html"}}
+</body>
+</html>

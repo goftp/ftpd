@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+{{include "head.html"}}
+<script>
+function updateGroup(name, newgroup) {
+    $.ajax({
+        url:"/perm/updateGroup",
+        data:{name:name, newgroup:newgroup}
+    }).done(function(data) {
+        if (data["status"] == 0) {
+            alert(data["error"])
+        }
+    });
+}
+
+function updateOwner(name, newowner) {
+    $.ajax({
+        url:"/perm/updateOwner",
+        data:{name:name, newowner:newowner}
+    }).done(function(data) {
+        if (data["status"] == 0) {
+            alert(data["error"])
+        }
+    });
+}
+
+function updatePerm(name, typ, right, has) {
+    $.ajax({
+        url:"/perm/updatePerm",
+        data:{name:name, 
+            typ:typ,
+            right:right,
+            has:has
+        }
+    }).done(function(data) {
+        if (data["status"] == 0) {
+            alert(data["error"])
+        }
+    });
+}
+
+$(function() {
+    $(".group").on("change",function() {
+        updateGroup($(this).attr("id").substr(6), $(this).val());
+    });
+
+    $(".owner").on("change",function() {
+        updateOwner($(this).attr("id").substr(6), $(this).val());
+    });
+
+    $(".check").click(function() {
+        id = $(this).attr("id")
+        updatePerm(id.substr(8), id.substr(0, 5), id.substr(6,1), 
+            $(this).attr("checked")=="checked")
+    })
+})
+</script>
+</head>
+<body>
+	<div class="container">
+		   {{include "nav.html"}}
+		   <div class="row" style="padding:10px;padding-top:60px">
+		   <div class="col-md-10">
+		   当前目录：{{.T.path}}
+		   </div>
+<div class="col-md-2 text-right">
+	</div>
+	</div>
+<table class="table table-bordered table-hover">
+    <thead>
+        <th>文件夹</th><th>创建时间</th><th>拥有者</th><th>拥有组</th>
+        <th>权限(Owner)</th><th>权限(Group)</th>
+        <th>权限(Others)</th><th>操作</th>
+    </thead>
+    <tbody>
+    {{$parent := .T.parent}}
+    {{if ne .T.path "/"}}
+    <tr><td colspan="8"><a href="/perm/?path={{$parent}}">..</a></td>
+    </tr>
+    {{end}}
+    {{$users := .T.users}}
+    {{$groups := .T.groups}}
+    {{range .T.infos}}
+<tr><td>
+{{$name := .Name}}
+{{$owner := .Owner}}
+{{$group := .Group}}
+{{if .IsDir}}
+<span class="glyphicon glyphicon-folder-open"></span>&nbsp; <a href="/perm/?path={{$parent}}/{{$name}}">{{$name}}</a>
+{{else}}
+<a href="/down?path={{$parent}}/{{$name}}">{{$name}}</a>
+{{end}}</td><td>{{.ModTime}}</td>
+<td><select class="owner" id="owner_{{$name}}">
+    {{range $users}}
+    <option{{if eq $owner .Name}} selected{{end}}>{{.Name}}</option>
+    {{end}}
+</select></td>
+<td>
+<select class="group" id="group_{{$name}}">
+	{{range $groups}}
+	<option{{if eq $group .}} selected{{end}}>{{.}}</option>
+	{{end}}
+</select></td>
+<td><input id="owner_r_{{$name}}" class="check" type="checkbox"{{if hasPerm .Mode 1 "r"}} checked{{end}}> r
+<input id="owner_w_{{$name}}" class="check" type="checkbox"{{if hasPerm .Mode 2 "w"}} checked{{end}}> w</td>
+<td><input id="group_r_{{$name}}" class="check" type="checkbox"{{if hasPerm .Mode 4 "r"}} checked{{end}}> r
+<input id="group_w_{{$name}}" class="check" type="checkbox"{{if hasPerm .Mode 5 "w"}} checked{{end}}> w</td>
+<td><input id="other_r_{{$name}}" class="check" type="checkbox"{{if hasPerm .Mode 7 "r"}} checked{{end}}> r
+<input id="other_w_{{$name}}" class="check" type="checkbox"{{if hasPerm .Mode 8 "w"}} checked{{end}}> w</td>
+<td> </td></tr>
+{{end}}
+</tbody>
+</table>
+</div>
+{{include "foot.html"}}
+</body>
+</html>
