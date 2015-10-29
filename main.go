@@ -27,7 +27,6 @@ func main() {
 		return
 	}
 
-	//listen, _ := cfg.GetValue("server", "listen")
 	port, _ := cfg.Int("server", "port")
 	db, err := leveldb.OpenFile("./authperm.db", nil)
 	if err != nil {
@@ -35,8 +34,20 @@ func main() {
 		return
 	}
 
-	auth := &ldbauth.LDBAuth{db}
-	perm := ldbperm.NewLDBPerm(db, "root", "root", os.ModePerm)
+	var auth = &ldbauth.LDBAuth{db}
+	/*if cfg.MustValue("auth", "type") == "xorm" {
+		panic("current is not supported yet")
+		//auth = xormauth.NewXormAuth(orm *xorm.Engine, allowAnony bool, perm os.FileMode)
+	} else {
+
+	}*/
+
+	var perm server.Perm
+	if cfg.MustValue("perm", "type") == "leveldb" {
+		perm = ldbperm.NewLDBPerm(db, "root", "root", os.ModePerm)
+	} else {
+		perm = server.NewSimplePerm("root", "root")
+	}
 
 	typ, _ := cfg.GetValue("driver", "type")
 	var factory server.DriverFactory
