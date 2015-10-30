@@ -83,9 +83,11 @@ func main() {
 		weblisten, _ := cfg.GetValue("web", "listen")
 		admin, _ := cfg.GetValue("admin", "user")
 		pass, _ := cfg.GetValue("admin", "pass")
-		ssl, _ := cfg.Bool("web", "ssl")
+		tls, _ := cfg.Bool("web", "tls")
+		certFile, _ := cfg.GetValue("web", "certFile")
+		keyFile, _ := cfg.GetValue("web", "keyFile")
 
-		go web.Web(weblisten, "static", "templates", admin, pass, ssl)
+		go web.Web(weblisten, "static", "templates", admin, pass, tls, certFile, keyFile)
 	}
 
 	ftpName, _ := cfg.GetValue("server", "name")

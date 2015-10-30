@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-cn">
 <head>
-{{include "head.html"}}
+{{template "base/head.html" .}}
 <style type="text/css">
       body {
         padding-top: 40px;
@@ -39,11 +39,11 @@
 <body>
 	<div class="container">
 	<form class="form-signin" method="post">
-      {{XsrfFormHtml}}
+      {{.XsrfFormHtml}}
         <h2 class="form-signin-heading">GoFtp管理系统</h2>
         <input name="name" type="text" class="input-block-level" placeholder="账号">
         <input name="pass" type="password" class="input-block-level" placeholder="密码">
-			<input type="submit" value="登录" class="btn btn-large btn-primary">&nbsp; <font color=red>{{.T.msg}}</font>
+			<input type="submit" value="登录" class="btn btn-large btn-primary">&nbsp; <font color=red>{{.msg}}</font>
 			</form>
 	</div>
 </body>

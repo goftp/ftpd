@@ -1,54 +1,20 @@
 package web
 
-import "github.com/go-xweb/xweb"
+import (
+	"github.com/tango-contrib/renders"
+	"github.com/tango-contrib/xsrf"
+)
+
+type UserBaseAction struct {
+	BaseAuthAction
+}
+
+func (c *UserBaseAction) Before() {
+	c.curModule = USER_MODULE
+}
 
 type UserAction struct {
-	BaseAction
-
-	get     xweb.Mapper `xweb:"/"`
-	add     xweb.Mapper
-	edit    xweb.Mapper
-	del     xweb.Mapper
-	chgpass xweb.Mapper
-
-	module int
-}
-
-func (c *UserAction) Init() {
-	c.module = USER_MODULE
-	c.AddTmplVar("isCurModule", c.IsCurModule)
-}
-
-func (c *UserAction) IsCurModule(module int) bool {
-	return c.module == module
-}
-
-func (c *UserAction) Chgpass() error {
-	c.module = CHGPASS_MODULE
-	if c.Method() == "GET" {
-		user := c.GetSession("userId")
-		_, err := DB.GetUser(user.(string))
-		if err != nil {
-			return err
-		}
-
-		return c.Render("user/chgpass.html", &xweb.T{
-			"user": user,
-		})
-	} else if c.Method() == "POST" {
-		var user User
-		err := c.MapForm(&user, "")
-		if err != nil {
-			return err
-		}
-		err = DB.ChgPass(user.Name, user.Pass)
-		if err != nil {
-			return err
-		}
-		return c.Go("chgpass")
-	}
-
-	return xweb.NotSupported()
+	UserBaseAction
 }
 
 func (a *UserAction) Get() error {
@@ -58,62 +24,118 @@ func (a *UserAction) Get() error {
 		return err
 	}
 
-	return a.Render("user/list.html", &xweb.T{
+	return a.Render("user/list.html", renders.T{
 		"users": users,
 		"admin": adminUser,
 	})
 }
 
-func (a *UserAction) Add() error {
-	if a.Method() == "GET" {
-		return a.Render("user/add.html")
-	} else if a.Method() == "POST" {
-		user := new(User)
-		err := a.MapForm(user, "")
-		if err != nil {
-			return err
-		}
-		err = DB.AddUser(user.Name, user.Pass)
-		if err != nil {
-			return err
-		}
-		return a.Go("get")
-	}
-	return xweb.NotSupported()
+type ChgPassAction struct {
+	UserBaseAction
+	xsrf.Checker
 }
 
-func (a *UserAction) Edit() error {
-	if a.Method() == "GET" {
-		name := a.GetString("name")
-		pass, err := DB.GetUser(name)
-		if err != nil {
-			return err
-		}
-
-		return a.Render("user/edit.html", &xweb.T{
-			"user": &User{name, pass},
-		})
-	} else if a.Method() == "POST" {
-		user := new(User)
-		err := a.MapForm(user, "")
-		if err != nil {
-			return err
-		}
-		err = DB.ChgPass(user.Name, user.Pass)
-		if err != nil {
-			return err
-		}
-		return a.Go("get")
-	}
-	return xweb.NotSupported()
+func (c *ChgPassAction) Before() {
+	c.curModule = CHGPASS_MODULE
 }
 
-func (a *UserAction) Del() error {
-	name := a.GetString("name")
+func (c *ChgPassAction) Get() error {
+	user := c.LoginUserId()
+	_, err := DB.GetUser(user)
+	if err != nil {
+		return err
+	}
+
+	return c.Render("user/chgpass.html", renders.T{
+		"user":         user,
+		"userId":       c.LoginUserId(),
+		"XsrfFormHtml": c.Checker.XsrfFormHtml(),
+	})
+}
+
+func (c *ChgPassAction) Post() error {
+	var user User
+	errs := c.Bind(&user)
+	if errs.Len() > 0 {
+		return errs[0]
+	}
+	err := DB.ChgPass(user.Name, user.Pass)
+	if err != nil {
+		return err
+	}
+	c.Redirect("/user/chgpass")
+	return nil
+}
+
+type UserAddAction struct {
+	UserBaseAction
+	xsrf.Checker
+}
+
+func (a *UserAddAction) Get() error {
+	return a.Render("user/add.html", renders.T{
+		"XsrfFormHtml": a.Checker.XsrfFormHtml(),
+	})
+}
+
+func (a *UserAddAction) Post() error {
+	var user User
+	errs := a.Bind(user)
+	if errs.Len() > 0 {
+		return errs[0]
+	}
+	err := DB.AddUser(user.Name, user.Pass)
+	if err != nil {
+		return err
+	}
+
+	a.Redirect("/user")
+	return nil
+}
+
+type UserEditAction struct {
+	UserBaseAction
+	xsrf.Checker
+}
+
+func (a *UserEditAction) Get() error {
+	name := a.Form("name")
+	pass, err := DB.GetUser(name)
+	if err != nil {
+		return err
+	}
+
+	return a.Render("user/edit.html", renders.T{
+		"user":         &User{name, pass},
+		"XsrfFormHtml": a.Checker.XsrfFormHtml(),
+	})
+}
+
+func (a *UserEditAction) Post() error {
+	var user User
+	errs := a.Bind(&user)
+	if errs.Len() > 0 {
+		return errs[0]
+	}
+	err := DB.ChgPass(user.Name, user.Pass)
+	if err != nil {
+		return err
+	}
+	a.Redirect("/user")
+	return nil
+}
+
+type UserDelAction struct {
+	UserBaseAction
+}
+
+func (a *UserDelAction) Get() error {
+	name := a.Form("name")
 	err := DB.DelUser(name)
 	if err != nil {
 		return err
 	}
 
-	return a.Go("get")
+	a.Redirect("/user")
+	return nil
 }

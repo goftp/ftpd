@@ -17,14 +17,14 @@
             </div>
             <div class="collapse navbar-collapse" role="navigation" id="navbar-collapse">
                 <ul class="nav navbar-nav">
-                {{if IsAdmin}}
-                    <li{{if isCurModule 1}} class="active"{{end}}><a href="/user">用户管理</a></li>
-                    <li{{if isCurModule 2}} class="active"{{end}}><a href="/group">组管理</a></li>
-                    <li{{if isCurModule 3}} class="active"{{end}}><a href="/perm">权限管理</a></li>
+                {{if .IsAdmin}}
+                    <li{{if call .isCurModule 1}} class="active"{{end}}><a href="/user">用户管理</a></li>
+                    <li{{if call .isCurModule 2}} class="active"{{end}}><a href="/group">组管理</a></li>
+                    <li{{if call .isCurModule 3}} class="active"{{end}}><a href="/perm">权限管理</a></li>
                     {{end}}
                 </ul>
                     <ul class="nav navbar-nav navbar-right">
-                     <li{{if isCurModule 4}} class="active"{{end}}><a href="/user/chgpass">修改密码</a></li>
+                     <li{{if call .isCurModule 4}} class="active"{{end}}><a href="/user/chgpass">修改密码</a></li>
                     <li><a href="/logout">退出 </a></li>
                     </ul>
             </div>

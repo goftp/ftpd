@@ -1,22 +1,20 @@
 package web
 
-import "github.com/go-xweb/xweb"
+import (
+	"github.com/tango-contrib/renders"
+	"github.com/tango-contrib/xsrf"
+)
+
+type GroupBaseAction struct {
+	BaseAuthAction
+}
+
+func (c *GroupBaseAction) Before() {
+	c.curModule = GROUP_MODULE
+}
 
 type GroupAction struct {
-	BaseAction
-
-	get  xweb.Mapper `xweb:"/"`
-	add  xweb.Mapper
-	edit xweb.Mapper
-	del  xweb.Mapper
-}
-
-func (c *GroupAction) Init() {
-	c.AddTmplVar("isCurModule", c.IsCurModule)
-}
-
-func (c *GroupAction) IsCurModule(module int) bool {
-	return GROUP_MODULE == module
+	GroupBaseAction
 }
 
 func (c *GroupAction) Get() error {
@@ -25,30 +23,42 @@ func (c *GroupAction) Get() error {
 	if err != nil {
 		return err
 	}
-	return c.Render("group/list.html", &xweb.T{
+	return c.Render("group/list.html", renders.T{
 		"groups": groups,
 		"admin":  adminUser,
 	})
 }
 
-func (c *GroupAction) Add() error {
-	if c.Method() == "GET" {
-		return c.Render("group/add.html")
-	} else if c.Method() == "POST" {
-		name := c.GetString("name")
-		err := DB.AddGroup(name)
-		if err != nil {
-			return err
-		}
-		return c.Go("get")
-	}
-	return xweb.NotSupported()
+type GroupAddAction struct {
+	GroupBaseAction
+	xsrf.Checker
 }
 
-func (c *GroupAction) Edit() error {
-	name := c.GetString("name")
+func (c *GroupAddAction) Get() error {
+	return c.Render("group/add.html", renders.T{
+		"XsrfFormHtml": c.Checker.XsrfFormHtml(),
+	})
+}
+
+func (c *GroupAddAction) Post() error {
+	name := c.Form("name")
+	err := DB.AddGroup(name)
+	if err != nil {
+		return err
+	}
+	c.Redirect("/group")
+	return nil
+}
+
+type GroupEditAction struct {
+	GroupBaseAction
+}
+
+func (c *GroupEditAction) Get() error {
+	name := c.Form("name")
 	if name == "" {
-		return c.Go("get")
+		c.Redirect("/group")
+		return nil
 	}
 	var selUsers []string
 	err := DB.GroupUser(name, &selUsers)
@@ -73,17 +83,22 @@ func (c *GroupAction) Edit() error {
 			otherUsers = append(otherUsers, user.Name)
 		}
 	}
-	return c.Render("group/edit.html", &xweb.T{
+	return c.Render("group/edit.html", renders.T{
 		"selUsers":   selUsers,
 		"otherUsers": otherUsers,
 	})
 }
 
-func (c *GroupAction) Del() error {
-	name := c.GetString("name")
+type GroupDelAction struct {
+	GroupBaseAction
+}
+
+func (c *GroupDelAction) Get() error {
+	name := c.Form("name")
 	err := DB.DelGroup(name)
 	if err != nil {
 		return err
 	}
-	return c.Go("get")
+	c.Redirect("/group")
+	return nil
 }

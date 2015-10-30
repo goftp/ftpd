@@ -1,11 +1,7 @@
-<!DOCTYPE html>
-<html lang="zh-cn">
-<head>
-{{include "head.html"}}
-</head>
-<body>
-	<div class="container">
-		   {{include "nav.html"}}
+{{template "base/base.html" .}}
+{{template "base/common.html" .}}
+
+{{define "body"}}
 <div class="text-right" style="padding:10px;padding-top:60px"><a href="/user/add" class="btn btn-large btn-primary">添加</a>
 	</div>
 <table class="table table-bordered table-hover">
@@ -13,8 +9,8 @@
         <th>用户名</th><th>创建时间</th><th>操作</th>
     </thead>
     <tbody>
-    {{$admin := .T.admin}}
-	{{range .T.users}}
+    {{$admin := .admin}}
+	{{range .users}}
 	<tr><td>{{.Name}}</td><td></td>
 		<td>
 		{{if ne .Name $admin}}
@@ -24,7 +20,4 @@
 	{{end}}
 </tbody>
 </table>
-</div>
-{{include "foot.html"}}
-</body>
-</html>
+{{end}}

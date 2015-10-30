@@ -1,25 +1,21 @@
-<!DOCTYPE html>
-<html lang="zh-cn">
-<head>
-{{include "head.html"}}
-</head>
-<body>
-	<div class="container">
-		 {{include "nav.html"}}
-		 <div style="padding:10px;padding-top:60px">
+{{template "base/base.html" .}}
+{{template "base/common.html" .}}
+
+{{define "body"}}
+<div style="padding:10px;padding-top:60px">
     <form class="form-horizontal" method="post">
-    	{{XsrfFormHtml}}
-	<legend>修改账号：{{.T.user.Name}}</legend>
+    	{{.XsrfFormHtml}}
+	<legend>修改账号：{{.user.Name}}</legend>
 <div class="control-group">
 <label class="control-label" for="inputEmail">账号名称：</label>
 <div class="controls">
-<input type="text" name="name" value="{{.T.user.Name}}"/>
+<input type="text" name="name" value="{{.user.Name}}"/>
 </div>
 </div>
 <div class="control-group">
 <label class="control-label" for="inputEmail">
 	账号密码：</label>
-	<div class="controls"><input type="password" name="pass" value="{{.T.user.Pass}}"/>
+	<div class="controls"><input type="password" name="pass" value="{{.user.Pass}}"/>
 	</div>
 </div>
 <div class="control-group">
@@ -29,7 +25,4 @@
 </div>
 </form>
 </div>
-</div>
-{{include "foot.html"}}
-</body>
-</html>
+{{end}}

@@ -1,11 +1,7 @@
-<!DOCTYPE html>
-<html lang="zh-cn">
-<head>
-{{include "head.html"}}
-</head>
-<body>
-	<div class="container">
-		 {{include "nav.html"}}
+{{template "base/base.html" .}}
+{{template "base/common.html" .}}
+
+{{define "body"}}
 		 <div style="padding:10px;padding-top:60px">
 		 <div class="row"><legend>修改组：{{.T.user.Name}}</legend></div>
 			 <div class="row">
@@ -40,7 +36,4 @@
 				 </div>
 			 </div>
 		</div>
-	</div>
-{{include "foot.html"}}
-</body>
-</html>
+{{end}}

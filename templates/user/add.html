@@ -1,14 +1,10 @@
-<!DOCTYPE html>
-<html lang="zh-cn">
-<head>
-{{include "head.html"}}
-</head>
-<body>
-	<div class="container">
-		 {{include "nav.html"}}
-		 <div style="padding:10px;padding-top:60px">
+{{template "base/base.html" .}}
+{{template "base/common.html" .}}
+
+{{define "body"}}
+<div style="padding:10px;padding-top:60px">
     <form class="form-horizontal" method="post">
-    	{{XsrfFormHtml}}
+    	{{.XsrfFormHtml}}
 	<legend>添加账号</legend>
 <div class="control-group">
 <label class="control-label" for="inputEmail">账号名称：</label>
@@ -28,7 +24,4 @@
 </div>
 </form>
 </div>
-</div>
-{{include "foot.html"}}
-</body>
-</html>
+{{end}}

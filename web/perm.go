@@ -5,36 +5,28 @@ import (
 	"os"
 	"path"
 
-	"github.com/go-xweb/xweb"
 	"github.com/goftp/server"
+	"github.com/tango-contrib/renders"
 )
-
-type PermAction struct {
-	BaseAction
-
-	get         xweb.Mapper `xweb:"/"`
-	add         xweb.Mapper
-	edit        xweb.Mapper
-	del         xweb.Mapper
-	updateOwner xweb.Mapper
-	updateGroup xweb.Mapper
-	updatePerm  xweb.Mapper
-}
-
-func (c *PermAction) Init() {
-	c.AddTmplVar("isCurModule", c.IsCurModule)
-}
-
-func (c *PermAction) IsCurModule(module int) bool {
-	return PERM_MODULE == module
-}
 
 func hasPerm(mode os.FileMode, idx int, rOrW string) bool {
 	return string(mode.String()[idx]) == rOrW
 }
 
+type PermBaseAction struct {
+	BaseAuthAction
+}
+
+func (c *PermBaseAction) Before() {
+	c.curModule = PERM_MODULE
+}
+
+type PermAction struct {
+	PermBaseAction
+}
+
 func (c *PermAction) Get() error {
-	p := c.GetString("path")
+	p := c.Form("path")
 	var pathinfos = make([]server.FileInfo, 0)
 	var err error
 	var parent string
@@ -67,7 +59,7 @@ func (c *PermAction) Get() error {
 	if err != nil {
 		return err
 	}
-	return c.Render("perm/list.html", &xweb.T{
+	return c.Render("perm/list.html", renders.T{
 		"parent":  parent,
 		"path":    p,
 		"infos":   pathinfos,
@@ -77,9 +69,37 @@ func (c *PermAction) Get() error {
 	})
 }
 
-func (c *PermAction) UpdateGroup() {
-	name := c.GetString("name")
-	newgroup := c.GetString("newgroup")
+type PermAddAction struct {
+	PermBaseAction
+}
+
+func (p *PermAddAction) Get() error {
+	return nil
+}
+
+type PermEditAction struct {
+	PermBaseAction
+}
+
+func (p *PermEditAction) Get() error {
+	return nil
+}
+
+type PermDelAction struct {
+	PermBaseAction
+}
+
+func (p *PermDelAction) Get() error {
+	return nil
+}
+
+type PermUpdateGroup struct {
+	PermBaseAction
+}
+
+func (c *PermUpdateGroup) Get() {
+	name := c.Form("name")
+	newgroup := c.Form("newgroup")
 
 	if name == "" || newgroup == "" {
 		c.ServeJson(map[string]string{"status": "0", "error": "empty params"})
@@ -100,9 +120,13 @@ func (c *PermAction) UpdateGroup() {
 	c.ServeJson(map[string]string{"status": "1"})
 }
 
-func (c *PermAction) UpdateOwner() {
-	name := c.GetString("name")
-	newowner := c.GetString("newowner")
+type PermUpdateOwner struct {
+	PermBaseAction
+}
+
+func (c *PermUpdateOwner) Get() {
+	name := c.Form("name")
+	newowner := c.Form("newowner")
 
 	if name == "" || newowner == "" {
 		c.ServeJson(map[string]string{"status": "0", "error": "empty params"})
@@ -123,11 +147,15 @@ func (c *PermAction) UpdateOwner() {
 	c.ServeJson(map[string]string{"status": "1"})
 }
 
-func (c *PermAction) UpdatePerm() {
-	name := c.GetString("name")
-	typ := c.GetString("typ")
-	right := c.GetString("right")
-	has := c.GetString("has")
+type PermUpdatePerm struct {
+	PermBaseAction
+}
+
+func (c *PermUpdatePerm) Get() {
+	name := c.Form("name")
+	typ := c.Form("typ")
+	right := c.Form("right")
+	has := c.Form("has")
 
 	if name == "" || typ == "" || right == "" || has == "" {
 		c.ServeJson(map[string]string{"status": "0", "error": "empty params"})

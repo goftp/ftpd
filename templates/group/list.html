@@ -1,11 +1,7 @@
-<!DOCTYPE html>
-<html lang="zh-cn">
-<head>
-{{include "head.html"}}
-</head>
-<body>
-	<div class="container">
-		   {{include "nav.html"}}
+{{template "base/base.html" .}}
+{{template "base/common.html" .}}
+
+{{define "body"}}
 <div class="text-right" style="padding:10px;padding-top:60px"><a href="/group/add" class="btn btn-large btn-primary">添加</a>
 	</div>
 <table class="table table-bordered table-hover">
@@ -24,7 +20,4 @@
 	{{end}}
 </tbody>
 </table>
-</div>
-{{include "foot.html"}}
-</body>
-</html>
+{{end}}
