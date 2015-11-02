@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/Unknwon/goconfig"
@@ -12,7 +11,12 @@ import (
 	"github.com/goftp/leveldb-perm"
 	"github.com/goftp/qiniu-driver"
 	"github.com/goftp/server"
+	"github.com/lunny/log"
 	"github.com/syndtr/goleveldb/leveldb"
+)
+
+var (
+	version = "v0.1.11.2"
 )
 
 var (
@@ -100,6 +104,7 @@ func main() {
 
 	// start ftp server
 	ftpServer := server.NewServer(opt)
+	log.Info("FTP Server", version)
 	err = ftpServer.ListenAndServe()
 	if err != nil {
 		log.Fatal("Error starting server:", err)
