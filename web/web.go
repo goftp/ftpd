@@ -7,6 +7,7 @@ import (
 	"github.com/lunny/tango"
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/tango-contrib/binding"
+	"github.com/tango-contrib/flash"
 	"github.com/tango-contrib/renders"
 	"github.com/tango-contrib/session"
 	"github.com/tango-contrib/xsrf"
@@ -63,25 +64,31 @@ func Web(listen, static, templates, admin, pass string, tls bool, certFile, keyF
 	adminUser = admin
 
 	t := tango.Classic()
-	t.Use(tango.Static(tango.StaticOptions{
-		RootPath: static,
-	}))
-	t.Use(renders.New(renders.Options{
-		Reload:    true, // if reload when template is changed
-		Directory: templates,
-	}))
-	t.Use(session.New(session.Options{
+	sess := session.New(session.Options{
 		MaxAge: timeout,
-	}))
-	t.Use(auth())
-	t.Use(binding.Bind())
-	t.Use(xsrf.New(timeout))
+	})
+	t.Use(
+		tango.Static(tango.StaticOptions{
+			RootPath: static,
+		}),
+		renders.New(renders.Options{
+			Reload:    true, // if reload when template is changed
+			Directory: templates,
+		}),
+		sess,
+		auth(),
+		binding.Bind(),
+		xsrf.New(timeout),
+		flash.Flashes(sess),
+	)
 
 	t.Get("/", new(MainAction))
 	t.Any("/login", new(LoginAction))
 	t.Get("/logout", new(LogoutAction))
+	t.Get("/down", new(DownAction))
 	t.Group("/user", func(g *tango.Group) {
 		g.Get("/", new(UserAction))
+		g.Any("/chgpass", new(ChgPassAction))
 		g.Any("/add", new(UserAddAction))
 		g.Any("/edit", new(UserEditAction))
 		g.Any("/del", new(UserDelAction))

@@ -1,10 +1,12 @@
 package web
 
 import (
-	"fmt"
+	"io"
+	"net/url"
 
 	"github.com/lunny/tango"
 	"github.com/tango-contrib/binding"
+	"github.com/tango-contrib/flash"
 	"github.com/tango-contrib/renders"
 	"github.com/tango-contrib/session"
 	"github.com/tango-contrib/xsrf"
@@ -34,7 +36,6 @@ func (a *BaseAuthAction) AskLogin() bool {
 
 func (a *BaseAction) IsLogin() bool {
 	id := a.Session.Get("userId")
-	fmt.Println(id)
 	return id != nil
 }
 
@@ -84,11 +85,13 @@ func (a *MainAction) Get() {
 type LoginAction struct {
 	BaseAction
 	xsrf.Checker
+	flash.Flash
 }
 
 func (a *LoginAction) Get() error {
 	return a.Render("login.html", renders.T{
 		"XsrfFormHtml": a.Checker.XsrfFormHtml(),
+		"Flash":        a.Flash.Data(),
 	})
 }
 
@@ -100,19 +103,21 @@ func (a *LoginAction) Post() error {
 	}
 
 	if user.Name == "" || user.Pass == "" {
-		return a.Render("login.html", renders.T{
-			"msg": "用户名或者密码错误",
-		})
+		a.Flash.Set("error", "用户名或者密码错误")
+		a.Redirect("/login")
+		return nil
 	}
 
 	p, err := DB.GetUser(user.Name)
 	if err != nil {
-		return err
+		a.Flash.Set("error", err.Error())
+		a.Redirect("/login")
+		return nil
 	}
 	if p != user.Pass {
-		return a.Render("login.html", renders.T{
-			"msg": "用户名或者密码错误",
-		})
+		a.Flash.Set("error", "用户名或者密码错误")
+		a.Redirect("/login")
+		return nil
 	}
 
 	a.SetLogin(user.Name)
@@ -131,4 +136,30 @@ type LogoutAction struct {
 func (a *LogoutAction) Get() {
 	a.Logout()
 	a.Redirect("/")
+}
+
+type DownAction struct {
+	BaseAuthAction
+}
+
+func (d *DownAction) Get() error {
+	var err error
+	p := d.Form("path")
+	p, err = url.QueryUnescape(p)
+	if err != nil {
+		return err
+	}
+
+	driver, err := Factory.NewDriver()
+	if err != nil {
+		return err
+	}
+
+	_, rd, err := driver.GetFile(p, 0)
+	if err != nil {
+		return err
+	}
+
+	_, err = io.Copy(d.ResponseWriter, rd)
+	return err
 }

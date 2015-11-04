@@ -71,7 +71,7 @@ $(function() {
     <thead>
         <th>文件夹</th><th>创建时间</th><th>拥有者</th><th>拥有组</th>
         <th>权限(Owner)</th><th>权限(Group)</th>
-        <th>权限(Others)</th><th>操作</th>
+        <th>权限(Others)</th>
     </thead>
     <tbody>
     {{$parent := .parent}}
@@ -87,9 +87,9 @@ $(function() {
 {{$owner := .Owner}}
 {{$group := .Group}}
 {{if .IsDir}}
-<span class="glyphicon glyphicon-folder-open"></span>&nbsp; <a href="/perm/?path={{$parent}}/{{$name}}">{{$name}}</a>
+<span class="glyphicon glyphicon-folder-open"></span>&nbsp; <a href="/perm/?path={{call $.subPath $name}}">{{$name}}</a>
 {{else}}
-<a href="/down?path={{$parent}}/{{$name}}">{{$name}}</a>
+<a href="/down?path={{call $.subPath $name}}">{{$name}}</a>
 {{end}}</td><td>{{.ModTime}}</td>
 <td><select class="owner" id="owner_{{$name}}">
     {{range $users}}
@@ -107,8 +107,7 @@ $(function() {
 <td><input id="group_r_{{$name}}" class="check" type="checkbox"{{if call $.hasPerm .Mode 4 "r"}} checked{{end}}> r
 <input id="group_w_{{$name}}" class="check" type="checkbox"{{if call $.hasPerm .Mode 5 "w"}} checked{{end}}> w</td>
 <td><input id="other_r_{{$name}}" class="check" type="checkbox"{{if call $.hasPerm .Mode 7 "r"}} checked{{end}}> r
-<input id="other_w_{{$name}}" class="check" type="checkbox"{{if call $.hasPerm .Mode 8 "w"}} checked{{end}}> w</td>
-<td> </td></tr>
+<input id="other_w_{{$name}}" class="check" type="checkbox"{{if call $.hasPerm .Mode 8 "w"}} checked{{end}}> w</td></tr>
 {{end}}
 </tbody>
 </table>

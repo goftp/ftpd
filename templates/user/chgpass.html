@@ -3,6 +3,11 @@
 
 {{define "body"}}
 <div style="padding:10px;padding-top:60px">
+<div>
+{{if .Flash.info}}
+	<span class="bg-info">{{.Flash.info}}</span>
+{{end}}
+	</div>
     <form class="form-horizontal" method="post">
     	{{.XsrfFormHtml}}
 	<legend>修改密码</legend>

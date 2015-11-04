@@ -45,7 +45,9 @@ func (c *PermAction) Get() error {
 	}
 	var pathinfos []server.FileInfo
 	err = driver.ListDir(p, func(f server.FileInfo) error {
-		pathinfos = append(pathinfos, f)
+		if f.Name() != "." {
+			pathinfos = append(pathinfos, f)
+		}
 		return nil
 	})
 	if err != nil {
@@ -69,6 +71,9 @@ func (c *PermAction) Get() error {
 		"hasPerm": hasPerm,
 		"users":   users,
 		"groups":  groups,
+		"subPath": func(subPath string) string {
+			return url.QueryEscape(path.Join(parent, subPath))
+		},
 	})
 }
 

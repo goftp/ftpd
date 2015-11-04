@@ -41,9 +41,12 @@
 	<form class="form-signin" method="post">
       {{.XsrfFormHtml}}
         <h2 class="form-signin-heading">GoFtp管理系统</h2>
+        {{if .Flash.error}}
+  <font style="color:red">{{.Flash.error}}</font>
+  {{end}}
         <input name="name" type="text" class="input-block-level" placeholder="账号">
         <input name="pass" type="password" class="input-block-level" placeholder="密码">
-			<input type="submit" value="登录" class="btn btn-large btn-primary">&nbsp; <font color=red>{{.msg}}</font>
+			<input type="submit" value="登录" class="btn btn-large btn-primary">
 			</form>
 	</div>
 </body>

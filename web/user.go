@@ -1,6 +1,7 @@
 package web
 
 import (
+	"github.com/tango-contrib/flash"
 	"github.com/tango-contrib/renders"
 	"github.com/tango-contrib/xsrf"
 )
@@ -33,6 +34,7 @@ func (a *UserAction) Get() error {
 type ChgPassAction struct {
 	UserBaseAction
 	xsrf.Checker
+	flash.Flash
 }
 
 func (c *ChgPassAction) Before() {
@@ -50,6 +52,7 @@ func (c *ChgPassAction) Get() error {
 		"user":         user,
 		"userId":       c.LoginUserId(),
 		"XsrfFormHtml": c.Checker.XsrfFormHtml(),
+		"Flash":        c.Flash.Data(),
 	})
 }
 
@@ -63,6 +66,7 @@ func (c *ChgPassAction) Post() error {
 	if err != nil {
 		return err
 	}
+	c.Flash.Set("info", "修改密码成功")
 	c.Redirect("/user/chgpass")
 	return nil
 }
