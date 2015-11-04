@@ -26,10 +26,9 @@ type PermAction struct {
 }
 
 func (c *PermAction) Get() error {
-	p := c.Form("path")
-	var pathinfos = make([]server.FileInfo, 0)
 	var err error
 	var parent string
+	p := c.Form("path")
 	if p != "" {
 		p, err = url.QueryUnescape(p)
 		if err != nil {
@@ -44,7 +43,11 @@ func (c *PermAction) Get() error {
 	if err != nil {
 		return err
 	}
-	pathinfos, err = driver.DirContents(p)
+	var pathinfos []server.FileInfo
+	err = driver.ListDir(p, func(f server.FileInfo) error {
+		pathinfos = append(pathinfos, f)
+		return nil
+	})
 	if err != nil {
 		return err
 	}
