@@ -1,8 +1,10 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/Unknwon/goconfig"
 	"github.com/goftp/file-driver"
@@ -20,16 +22,32 @@ var (
 )
 
 var (
-	cfg *goconfig.ConfigFile
+	cfg        *goconfig.ConfigFile
+	cfgPath    string
+	customPath string
 )
 
 func main() {
+	flag.StringVar(&cfgPath, "config", "config.ini",
+		"config file path, default is config.ini and custom.ini")
+	flag.Parse()
+
+	if len(cfgPath) <= 0 {
+		cfgPath = "config.ini"
+		customPath = "custom.ini"
+	} else {
+		f, _ := filepath.Abs(cfgPath)
+		customPath = filepath.Join(filepath.Dir(f), "custom.ini")
+	}
+
 	var err error
-	cfg, err = goconfig.LoadConfigFile("config.ini", "custom.ini")
+	cfg, err = goconfig.LoadConfigFile(cfgPath, customPath)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+
+	log.Info("Loaded config files:", cfgPath, customPath)
 
 	port, _ := cfg.Int("server", "port")
 	db, err := leveldb.OpenFile("./authperm.db", nil)
@@ -39,13 +57,6 @@ func main() {
 	}
 
 	var auth = &ldbauth.LDBAuth{db}
-	/*if cfg.MustValue("auth", "type") == "xorm" {
-		panic("current is not supported yet")
-		//auth = xormauth.NewXormAuth(orm *xorm.Engine, allowAnony bool, perm os.FileMode)
-	} else {
-
-	}*/
-
 	var perm server.Perm
 	if cfg.MustValue("perm", "type") == "leveldb" {
 		perm = ldbperm.NewLDBPerm(db, "root", "root", os.ModePerm)
