@@ -84,7 +84,7 @@ func (a *UserAddAction) Get() error {
 
 func (a *UserAddAction) Post() error {
 	var user User
-	errs := a.Bind(user)
+	errs := a.Bind(&user)
 	if errs.Len() > 0 {
 		return errs[0]
 	}
