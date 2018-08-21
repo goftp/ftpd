@@ -113,6 +113,11 @@ func main() {
 		Auth:    auth,
 	}
 
+	opt.TLS = cfg.MustBool("server", "tls", false)
+	opt.KeyFile = cfg.MustValue("server", "key_file", "")
+	opt.CertFile = cfg.MustValue("server", "cert_file", "")
+	opt.ExplicitFTPS = opt.TLS
+
 	// start ftp server
 	ftpServer := server.NewServer(opt)
 	log.Info("FTP Server", version)
